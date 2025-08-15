@@ -1,0 +1,84 @@
+From 695e40e9b0b01323934969de021fc0361ae28d91 Mon Sep 17 00:00:00 2001
+From: Dave Stevenson <dave.stevenson@raspberrypi.com>
+Date: Thu, 7 Aug 2025 14:28:01 +0100
+Subject: [PATCH 2/3] drm/vc4: plane: Flag formats as having a minimum
+ generation
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+The bool hvs5_only is now mis-named as they are also supported on
+hvs6, and we're about to add formats that are only supported on
+hvs6.
+
+Change from a bool to an enum vc4_gen giving the minimum generation
+that supports the format.
+
+Signed-off-by: Dave Stevenson <dave.stevenson@raspberrypi.com>
+Reviewed-by: Maíra Canal <mcanal@igalia.com>
+---
+ drivers/gpu/drm/vc4/vc4_plane.c | 14 +++++++-------
+ 1 file changed, 7 insertions(+), 7 deletions(-)
+
+diff --git a/drivers/gpu/drm/vc4/vc4_plane.c b/drivers/gpu/drm/vc4/vc4_plane.c
+index 675082a97bceb..e36c46333cee5 100644
+--- a/drivers/gpu/drm/vc4/vc4_plane.c
++++ b/drivers/gpu/drm/vc4/vc4_plane.c
+@@ -35,7 +35,7 @@ static const struct hvs_format {
+ 	u32 hvs; /* HVS_FORMAT_* */
+ 	u32 pixel_order;
+ 	u32 pixel_order_hvs5;
+-	bool hvs5_only;
++	enum vc4_gen min_gen;
+ } hvs_formats[] = {
+ 	{
+ 		.drm = DRM_FORMAT_XRGB8888,
+@@ -161,31 +161,31 @@ static const struct hvs_format {
+ 		.drm = DRM_FORMAT_P030,
+ 		.hvs = HVS_PIXEL_FORMAT_YCBCR_10BIT,
+ 		.pixel_order_hvs5 = HVS_PIXEL_ORDER_XYCBCR,
+-		.hvs5_only = true,
++		.min_gen = VC4_GEN_5,
+ 	},
+ 	{
+ 		.drm = DRM_FORMAT_XRGB2101010,
+ 		.hvs = HVS_PIXEL_FORMAT_RGBA1010102,
+ 		.pixel_order_hvs5 = HVS_PIXEL_ORDER_ARGB,
+-		.hvs5_only = true,
++		.min_gen = VC4_GEN_5,
+ 	},
+ 	{
+ 		.drm = DRM_FORMAT_ARGB2101010,
+ 		.hvs = HVS_PIXEL_FORMAT_RGBA1010102,
+ 		.pixel_order_hvs5 = HVS_PIXEL_ORDER_ARGB,
+-		.hvs5_only = true,
++		.min_gen = VC4_GEN_5,
+ 	},
+ 	{
+ 		.drm = DRM_FORMAT_ABGR2101010,
+ 		.hvs = HVS_PIXEL_FORMAT_RGBA1010102,
+ 		.pixel_order_hvs5 = HVS_PIXEL_ORDER_ABGR,
+-		.hvs5_only = true,
++		.min_gen = VC4_GEN_5,
+ 	},
+ 	{
+ 		.drm = DRM_FORMAT_XBGR2101010,
+ 		.hvs = HVS_PIXEL_FORMAT_RGBA1010102,
+ 		.pixel_order_hvs5 = HVS_PIXEL_ORDER_ABGR,
+-		.hvs5_only = true,
++		.min_gen = VC4_GEN_5,
+ 	},
+ 	{
+ 		.drm = DRM_FORMAT_RGB332,
+@@ -2669,7 +2669,7 @@ struct drm_plane *vc4_plane_init(struct drm_device *dev,
+ 	};
+ 
+ 	for (i = 0; i < ARRAY_SIZE(hvs_formats); i++) {
+-		if (!hvs_formats[i].hvs5_only || vc4->gen >= VC4_GEN_5) {
++		if (vc4->gen >= hvs_formats[i].min_gen) {
+ 			formats[num_formats] = hvs_formats[i].drm;
+ 			num_formats++;
+ 		}
+-- 
+2.50.1
+

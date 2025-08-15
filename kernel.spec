@@ -379,6 +379,10 @@ Patch140: 0001-Revert-Use-kernel-command-line-to-disable-memory-cgr.patch
 
 # Custom bootup logo
 Patch200: bootup-logo.patch
+
+Patch300: 0001-drm-drm_fourcc-add-10-12-16bit-software-decoder-YCbC.patch
+Patch301: 0002-drm-vc4-plane-Flag-formats-as-having-a-minimum-gener.patch
+Patch302: 0003-drm-vc4-plane-Add-support-for-P01-026-and-S01-026-fo.patch
 # END OF PATCH DEFINITIONS
 %endif
 
